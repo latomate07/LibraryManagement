@@ -1,13 +1,24 @@
 from fastapi import FastAPI
+import uvicorn
+from routers import books, users, loans
+from config.settings import settings
 
-app = FastAPI()
+app = FastAPI(
+    title=settings.APP_TITLE,
+    description=settings.APP_DESCRIPTION,
+    version=settings.APP_VERSION
+)
 
+app.include_router(books.router, prefix="/books", tags=["Books"])
+app.include_router(users.router, prefix="/users", tags=["Users"])
+app.include_router(loans.router, prefix="/loans", tags=["Loans"])
 
 @app.get("/")
-async def root():
-    return {"message": "Hello World"}
+def read_root():
+    return {
+        "message": "Bienvenue dans l'API de gestion de bibliothèque",
+        "documentation": "/docs"
+    }
 
-
-@app.get("/hello/{name}")
-async def say_hello(name: str):
-    return {"message": f"Hello {name}"}
+if __name__ == "__main__":
+    uvicorn.run("main:app", host=settings.HOST, port=settings.PORT, reload=settings.DEBUG)
